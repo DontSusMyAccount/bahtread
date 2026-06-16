@@ -1,0 +1,37 @@
+{
+  "name": "bahtread",
+  "version": "1.0.1",
+  "description": "A TypeScript library to convert numbers into Thai words and Thai Baht text format.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "dev": "tsup --watch"
+  },
+  "keywords": [
+    "thai-baht",
+    "thai-baht-text",
+    "thai-number-to-words",
+    "thai-reading",
+    "baht"
+  ],
+  "author": "oatthaphonoiu",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "tsup": "^8.0.2",
+    "vitest": "^1.6.0"
+  }
+}
