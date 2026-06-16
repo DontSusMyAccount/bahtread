@@ -1,6 +1,6 @@
 {
   "name": "bahtread",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A TypeScript library to convert numbers into Thai words and Thai Baht text format.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -38,8 +38,10 @@
     "url": "https://github.com/DontSusMyAccount/bahtread/issues"
   },
   "devDependencies": {
-    "typescript": "^5.4.5",
+    "bahttext": "^2.4.0",
+    "thai-baht-text": "^2.0.5",
     "tsup": "^8.0.2",
+    "typescript": "^5.4.5",
     "vitest": "^1.6.0"
   }
 }
