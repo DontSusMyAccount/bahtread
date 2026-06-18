@@ -22,10 +22,10 @@ describe('thaiBaht', () => {
   // กลุ่ม 2: หลักสิบ – กฎ "สิบ", "ยี่สิบ", "เอ็ด"
   // ──────────────────────────────────────────
   it('should handle tens position rules correctly', () => {
-    expect(thaiBaht(10)).toBe('สิบบาทถ้วน');           // "สิบ" ไม่ใช่ "หนึ่งสิบ"
-    expect(thaiBaht(11)).toBe('สิบเอ็ดบาทถ้วน');       // "เอ็ด" ไม่ใช่ "หนึ่ง"
+    expect(thaiBaht(10)).toBe('สิบบาทถ้วน');
+    expect(thaiBaht(11)).toBe('สิบเอ็ดบาทถ้วน');
     expect(thaiBaht(12)).toBe('สิบสองบาทถ้วน');
-    expect(thaiBaht(20)).toBe('ยี่สิบบาทถ้วน');         // "ยี่สิบ" ไม่ใช่ "สองสิบ"
+    expect(thaiBaht(20)).toBe('ยี่สิบบาทถ้วน');
     expect(thaiBaht(21)).toBe('ยี่สิบเอ็ดบาทถ้วน');
     expect(thaiBaht(30)).toBe('สามสิบบาทถ้วน');
     expect(thaiBaht(31)).toBe('สามสิบเอ็ดบาทถ้วน');
@@ -82,13 +82,9 @@ describe('thaiBaht', () => {
   // กลุ่ม 6: ล้านล้าน (Trillions) – ข้ามหลักล้านซ้ำ
   // ──────────────────────────────────────────
   it('should handle trillions (ล้านล้าน) correctly', () => {
-    // 1,000,000,000,000 = หนึ่งล้านล้าน
     expect(thaiBaht('1000000000000')).toBe('หนึ่งล้านล้านบาทถ้วน');
-    // 1,000,000,000,001 = หนึ่งล้านล้านเอ็ด
     expect(thaiBaht('1000000000001')).toBe('หนึ่งล้านล้านเอ็ดบาทถ้วน');
-    // 1,000,001,000,001 = chunks: ["000001", "000001", "1"] -> หนึ่งล้านล้านเอ็ดล้านเอ็ด
     expect(thaiBaht('1000001000001')).toBe('หนึ่งล้านล้านเอ็ดล้านเอ็ดบาทถ้วน');
-    // 1,000,000,000,000,001 = หนึ่งพันล้านล้านเอ็ด
     expect(thaiBaht('1000000000000001')).toBe('หนึ่งพันล้านล้านเอ็ดบาทถ้วน');
   });
 
@@ -126,30 +122,30 @@ describe('thaiBaht', () => {
     expect(thaiBaht(1.235)).toBe('หนึ่งบาทยี่สิบสี่สตางค์');
     expect(thaiBaht(1.239)).toBe('หนึ่งบาทยี่สิบสี่สตางค์');
     expect(thaiBaht(1.999)).toBe('สองบาทถ้วน');
-    expect(thaiBaht(0.005)).toBe('หนึ่งสตางค์');          // 0.005 -> .01 rounded
-    expect(thaiBaht(0.994)).toBe('เก้าสิบเก้าสตางค์');    // 0.994 -> .99
-    expect(thaiBaht(0.999)).toBe('หนึ่งบาทถ้วน');          // 0.999 -> 1.00
-    expect(thaiBaht('99.999')).toBe('หนึ่งร้อยบาทถ้วน');   // rounds up integer part
+    expect(thaiBaht(0.005)).toBe('หนึ่งสตางค์');
+    expect(thaiBaht(0.994)).toBe('เก้าสิบเก้าสตางค์');
+    expect(thaiBaht(0.999)).toBe('หนึ่งบาทถ้วน');
+    expect(thaiBaht('99.999')).toBe('หนึ่งร้อยบาทถ้วน');
   });
 
   // ──────────────────────────────────────────
   // กลุ่ม 10: จำนวนลบ
   // ──────────────────────────────────────────
   it('should handle negative values correctly', () => {
-    expect(thaiBaht(-0)).toBe('ศูนย์บาทถ้วน');           // JS: String(-0) = "0"
+    expect(thaiBaht(-0)).toBe('ศูนย์บาทถ้วน');
     expect(thaiBaht(-100)).toBe('ลบหนึ่งร้อยบาทถ้วน');
     expect(thaiBaht(-123.45)).toBe('ลบหนึ่งร้อยยี่สิบสามบาทสี่สิบห้าสตางค์');
     expect(thaiBaht(-0.25)).toBe('ลบยี่สิบห้าสตางค์');
   });
 
   // ──────────────────────────────────────────
-  // กลุ่ม 11: BUG – String "-0" ไม่ควรเป็น "ลบศูนย์บาทถ้วน"
+  // กลุ่ม 11: String "-0" ไม่ควรเป็น "ลบศูนย์บาทถ้วน"
   // ──────────────────────────────────────────
   it('should treat "-0" string as zero (not negative zero)', () => {
     expect(thaiBaht('-0')).toBe('ศูนย์บาทถ้วน');
     expect(thaiBaht('-0.00')).toBe('ศูนย์บาทถ้วน');
     expect(thaiBaht('-0.000')).toBe('ศูนย์บาทถ้วน');
-    expect(thaiBaht('-0.001')).toBe('ศูนย์บาทถ้วน');  // rounded down to 0.00
+    expect(thaiBaht('-0.001')).toBe('ศูนย์บาทถ้วน');
   });
 
   // ──────────────────────────────────────────
@@ -159,7 +155,7 @@ describe('thaiBaht', () => {
     expect(thaiBaht('852,500')).toBe('แปดแสนห้าหมื่นสองพันห้าร้อยบาทถ้วน');
     expect(thaiBaht('1,234,567.89')).toBe('หนึ่งล้านสองแสนสามหมื่นสี่พันห้าร้อยหกสิบเจ็ดบาทแปดสิบเก้าสตางค์');
     expect(thaiBaht('   100   ')).toBe('หนึ่งร้อยบาทถ้วน');
-    expect(thaiBaht('000123')).toBe('หนึ่งร้อยยี่สิบสามบาทถ้วน'); // leading zeros stripped
+    expect(thaiBaht('000123')).toBe('หนึ่งร้อยยี่สิบสามบาทถ้วน');
     expect(thaiBaht('0')).toBe('ศูนย์บาทถ้วน');
     expect(thaiBaht('0.00')).toBe('ศูนย์บาทถ้วน');
   });
@@ -183,9 +179,6 @@ describe('thaiBaht', () => {
   // ──────────────────────────────────────────
   it('should handle extremely large numbers via string input', () => {
     expect(thaiBaht('1000000000000001')).toBe('หนึ่งพันล้านล้านเอ็ดบาทถ้วน');
-    // Number.MAX_SAFE_INTEGER = 9,007,199,254,740,991
-    // chunks: ["740991", "199254", "9007"]
-    // = เก้าพันเจ็ดล้านล้านหนึ่งแสนเก้าหมื่นเก้าพันสองร้อยห้าสิบสี่ล้านเจ็ดแสนสี่หมื่นเก้าร้อยเก้าสิบเอ็ด
     expect(thaiBaht('9007199254740991')).toBe(
       'เก้าพันเจ็ดล้านล้านหนึ่งแสนเก้าหมื่นเก้าพันสองร้อยห้าสิบสี่ล้านเจ็ดแสนสี่หมื่นเก้าร้อยเก้าสิบเอ็ดบาทถ้วน'
     );
@@ -195,9 +188,73 @@ describe('thaiBaht', () => {
   // กลุ่ม 15: Floating point precision issues
   // ──────────────────────────────────────────
   it('should handle JS floating point quirks gracefully', () => {
-    // 0.1 + 0.2 = 0.30000000000000004 in JS
-    // String(0.30000000000000004) has many decimal places but rounds to .30
     expect(thaiBaht(0.1 + 0.2)).toBe('สามสิบสตางค์');
+  });
+
+  // ──────────────────────────────────────────
+  // กลุ่ม 16: Float precision regression (epsilon fix)
+  // ──────────────────────────────────────────
+  it('should handle borderline float values correctly', () => {
+    expect(thaiBaht(1.005)).toBe('หนึ่งบาทถ้วน');
+    expect(thaiBaht(1.015)).toBe('หนึ่งบาทหนึ่งสตางค์');
+    expect(thaiBaht(10.075)).toBe('สิบบาทเจ็ดสตางค์');
+    expect(thaiBaht(2.675)).toBe('สองบาทหกสิบแปดสตางค์');
+    expect(thaiBaht(100.005)).toBe('หนึ่งร้อยบาทหนึ่งสตางค์');
+    expect(thaiBaht(0.995)).toBe('หนึ่งบาทถ้วน');
+  });
+
+  // ──────────────────────────────────────────
+  // กลุ่ม 17: Array and object type guard
+  // ──────────────────────────────────────────
+  it('should reject non-number/non-string types', () => {
+    expect(thaiBaht([100] as any)).toBe('ข้อมูลไม่ถูกต้อง');
+    expect(thaiBaht([1, 2, 3] as any)).toBe('ข้อมูลไม่ถูกต้อง');
+    expect(thaiBaht([] as any)).toBe('ข้อมูลไม่ถูกต้อง');
+    expect(thaiBaht({} as any)).toBe('ข้อมูลไม่ถูกต้อง');
+    expect(thaiBaht(true as any)).toBe('ข้อมูลไม่ถูกต้อง');
+    expect(thaiBaht(false as any)).toBe('ข้อมูลไม่ถูกต้อง');
+    expect(thaiBaht(Symbol('x') as any)).toBe('ข้อมูลไม่ถูกต้อง');
+  });
+
+  // ──────────────────────────────────────────
+  // กลุ่ม 18: New string formats (+, leading dot, trailing dot)
+  // ──────────────────────────────────────────
+  it('should support plus sign, leading dot, and trailing dot', () => {
+    expect(thaiBaht('+100')).toBe('หนึ่งร้อยบาทถ้วน');
+    expect(thaiBaht('+100.50')).toBe('หนึ่งร้อยบาทห้าสิบสตางค์');
+    expect(thaiBaht('+0.25')).toBe('ยี่สิบห้าสตางค์');
+    expect(thaiBaht('100.')).toBe('หนึ่งร้อยบาทถ้วน');
+    expect(thaiBaht('.5')).toBe('ห้าสิบสตางค์');
+    expect(thaiBaht('.25')).toBe('ยี่สิบห้าสตางค์');
+    expect(thaiBaht('.00')).toBe('ศูนย์บาทถ้วน');
+    expect(thaiBaht('-.5')).toBe('ลบห้าสิบสตางค์');
+    expect(thaiBaht('+.5')).toBe('ห้าสิบสตางค์');
+  });
+
+  // ──────────────────────────────────────────
+  // กลุ่ม 19: Integer Baht + satang edge cases
+  // ──────────────────────────────────────────
+  it('should handle boundary satang values', () => {
+    expect(thaiBaht('0.00')).toBe('ศูนย์บาทถ้วน');
+    expect(thaiBaht('0.000')).toBe('ศูนย์บาทถ้วน');
+    expect(thaiBaht('0.001')).toBe('ศูนย์บาทถ้วน');
+    expect(thaiBaht('0.004')).toBe('ศูนย์บาทถ้วน');
+    expect(thaiBaht('0.005')).toBe('หนึ่งสตางค์');
+    expect(thaiBaht('0.009')).toBe('หนึ่งสตางค์');
+    expect(thaiBaht('0.99')).toBe('เก้าสิบเก้าสตางค์');
+    expect(thaiBaht('999.999')).toBe('หนึ่งพันบาทถ้วน');
+  });
+
+  // ──────────────────────────────────────────
+  // กลุ่ม 20: Pure string decimal rounding
+  // ──────────────────────────────────────────
+  it('should round string decimals without float issues', () => {
+    expect(thaiBaht('1.005')).toBe('หนึ่งบาทหนึ่งสตางค์');
+    expect(thaiBaht('1.004')).toBe('หนึ่งบาทถ้วน');
+    expect(thaiBaht('1.014')).toBe('หนึ่งบาทหนึ่งสตางค์');
+    expect(thaiBaht('1.015')).toBe('หนึ่งบาทสองสตางค์');
+    expect(thaiBaht('1.025')).toBe('หนึ่งบาทสามสตางค์');
+    expect(thaiBaht('1.995')).toBe('สองบาทถ้วน');
   });
 });
 
@@ -238,5 +295,41 @@ describe('thaiRead', () => {
     expect(thaiRead(NaN)).toBe('ข้อมูลไม่ถูกต้อง');
     expect(thaiRead(Infinity)).toBe('ข้อมูลไม่ถูกต้อง');
     expect(thaiRead('' as any)).toBe('ข้อมูลไม่ถูกต้อง');
+  });
+
+  // ──────────────────────────────────────────
+  // thaiRead เพิ่มเติม
+  // ──────────────────────────────────────────
+  it('should reject non-number/non-string types', () => {
+    expect(thaiRead([100] as any)).toBe('ข้อมูลไม่ถูกต้อง');
+    expect(thaiRead({} as any)).toBe('ข้อมูลไม่ถูกต้อง');
+    expect(thaiRead(true as any)).toBe('ข้อมูลไม่ถูกต้อง');
+    expect(thaiRead(null as any)).toBe('ข้อมูลไม่ถูกต้อง');
+    expect(thaiRead(undefined as any)).toBe('ข้อมูลไม่ถูกต้อง');
+  });
+
+  it('should support new string formats (+, leading dot, trailing dot)', () => {
+    expect(thaiRead('+100')).toBe('หนึ่งร้อย');
+    expect(thaiRead('100.')).toBe('หนึ่งร้อย');
+    expect(thaiRead('.5')).toBe('ศูนย์จุดห้า');
+    expect(thaiRead('.25')).toBe('ศูนย์จุดสองห้า');
+    expect(thaiRead('-.5')).toBe('ลบศูนย์จุดห้า');
+    expect(thaiRead('+.5')).toBe('ศูนย์จุดห้า');
+  });
+
+  it('should handle float input precision for reading', () => {
+    expect(thaiRead(0.1 + 0.2)).toBe('ศูนย์จุดสาม');
+    expect(thaiRead(1.005)).toBe('หนึ่งจุดศูนย์ศูนย์ห้า');
+  });
+
+  it('should handle zero and near-zero edge cases', () => {
+    expect(thaiRead(-0)).toBe('ศูนย์');
+    expect(thaiRead(0.000)).toBe('ศูนย์');
+    expect(thaiRead('-0')).toBe('ศูนย์');
+    expect(thaiRead('-0.00')).toBe('ศูนย์');
+  });
+
+  it('should read large numbers with decimal', () => {
+    expect(thaiRead('1234567.89')).toBe('หนึ่งล้านสองแสนสามหมื่นสี่พันห้าร้อยหกสิบเจ็ดจุดแปดเก้า');
   });
 });

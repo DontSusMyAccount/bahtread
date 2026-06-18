@@ -9,23 +9,46 @@ function isValidNumericString(str: string): boolean {
   const len = str.length;
   if (len === 0) return false;
 
-  let start = str.charCodeAt(0) === 45 ? 1 : 0;
-  if (start === 1 && len === 1) return false;
+  let start = 0;
+  const first = str.charCodeAt(0);
+  if (first === 45 || first === 43) {
+    start = 1;
+    if (len === 1) return false;
+  }
 
   let hasDot = false;
   let hasDigit = false;
   for (let i = start; i < len; i++) {
     const code = str.charCodeAt(i);
-    if (code === 46) {
-      if (hasDot || i === start || i === len - 1) return false;
-      hasDot = true;
-    } else if (code >= 48 && code <= 57) {
+    if (code >= 48 && code <= 57) {
       hasDigit = true;
-    } else {
-      return false;
+      continue;
     }
+    if (code === 46) {
+      if (hasDot) return false;
+      hasDot = true;
+      continue;
+    }
+    return false;
   }
   return hasDigit;
+}
+
+function normalizeNumericString(str: string): string {
+  if (str.charCodeAt(0) === 43) str = str.slice(1);
+  if (str.charCodeAt(0) === 46) str = '0' + str;
+  else if (str.charCodeAt(0) === 45 && str.charCodeAt(1) === 46) str = '-0' + str.slice(1);
+  if (str.charCodeAt(str.length - 1) === 46) str = str.slice(0, -1);
+  return str;
+}
+
+function numberToString(n: number): string {
+  if (Number.isInteger(n)) return n.toString();
+  const s = n.toFixed(10);
+  let end = s.length - 1;
+  while (end >= 0 && s.charCodeAt(end) === 48) end--;
+  if (end >= 0 && s.charCodeAt(end) === 46) end--;
+  return end >= 0 ? s.slice(0, end + 1) : '0';
 }
 
 type ParsedInput = {
@@ -35,11 +58,18 @@ type ParsedInput = {
 };
 
 function parseInput(amount: number | string): ParsedInput | null {
-  const str = typeof amount === 'string'
-    ? amount.indexOf(',') !== -1 ? amount.replace(/,/g, '').trim() : amount.trim()
-    : String(amount ?? '').trim();
+  if (typeof amount !== 'number' && typeof amount !== 'string') return null;
+
+  let str: string;
+  if (typeof amount === 'string') {
+    str = amount.indexOf(',') !== -1 ? amount.replace(/,/g, '').trim() : amount.trim();
+  } else {
+    if (!Number.isFinite(amount)) return null;
+    str = numberToString(amount);
+  }
 
   if (!isValidNumericString(str)) return null;
+  str = normalizeNumericString(str);
 
   const isNegative = str.charCodeAt(0) === 45;
   const startOffset = isNegative ? 1 : 0;
@@ -99,7 +129,7 @@ function convertChunk(chunk: string, hasLeftContent: boolean): string {
     return tens + units;
   }
 
-  let text = '';
+  const parts: string[] = [];
   let hasEncounteredNonZero = hasLeftContent;
 
   for (let i = 0; i < len; i++) {
@@ -111,26 +141,20 @@ function convertChunk(chunk: string, hasLeftContent: boolean): string {
     const unitText = THAI_UNITS[pos];
 
     let digitText = THAI_NUMBERS[val];
-    switch (pos) {
-      case 1:
-        if (val === 1) digitText = '';
-        else if (val === 2) digitText = 'ยี่';
-        break;
-      case 0:
-        if (val === 1 && hasEncounteredNonZero) digitText = 'เอ็ด';
-        break;
-    }
+    if (pos === 1 && val === 1) digitText = '';
+    else if (pos === 1 && val === 2) digitText = 'ยี่';
+    else if (pos === 0 && val === 1 && hasEncounteredNonZero) digitText = 'เอ็ด';
 
-    text += digitText + unitText;
+    parts.push(digitText, unitText);
     hasEncounteredNonZero = true;
   }
 
-  return text;
+  return parts.join('');
 }
 
 function isAllZeros(s: string): boolean {
-  for (let i = 0; i < s.length; i++) {
-    if (s[i] !== '0') return false;
+  for (let i = s.length - 1; i >= 0; i--) {
+    if (s.charCodeAt(i) !== 48) return false;
   }
   return true;
 }
@@ -139,18 +163,16 @@ function convertInteger(intStr: string): string {
   if (intStr === '' || intStr === '0') return 'ศูนย์';
 
   const len = intStr.length;
-  if (len <= 6) {
-    return convertChunk(intStr, false);
-  }
+  if (len <= 6) return convertChunk(intStr, false);
 
-  let result = '';
+  const parts: string[] = [];
   let hasLeftContent = false;
   const firstChunkLen = len % 6 || 6;
   const numChunks = Math.ceil(len / 6);
 
   const firstChunk = intStr.slice(0, firstChunkLen);
   if (!isAllZeros(firstChunk)) {
-    result += convertChunk(firstChunk, false) + 'ล้าน'.repeat(numChunks - 1);
+    parts.push(convertChunk(firstChunk, false), 'ล้าน'.repeat(numChunks - 1));
     hasLeftContent = true;
   }
 
@@ -159,14 +181,29 @@ function convertInteger(intStr: string): string {
     const chunk = intStr.slice(start, start + 6);
     if (isAllZeros(chunk)) continue;
 
-    result += convertChunk(chunk, hasLeftContent) + 'ล้าน'.repeat(numChunks - 1 - k);
+    parts.push(convertChunk(chunk, hasLeftContent), 'ล้าน'.repeat(numChunks - 1 - k));
     hasLeftContent = true;
   }
 
-  return result || 'ศูนย์';
+  return parts.length ? parts.join('') : 'ศูนย์';
 }
 
 function thaiBahtRaw(amount: number | string): string {
+  if (typeof amount === 'number') {
+    if (!Number.isFinite(amount)) return 'ข้อมูลไม่ถูกต้อง';
+    const satang = Math.round(Math.abs(amount) * 100);
+    const baht = Math.floor(satang / 100);
+    const dec = satang % 100;
+
+    if (baht === 0 && dec === 0) return 'ศูนย์บาทถ้วน';
+
+    const bahtText = baht > 0 ? convertInteger(baht.toString()) + 'บาท' : '';
+    const satangText = dec > 0
+      ? convertInteger(dec.toString().padStart(2, '0')) + 'สตางค์'
+      : 'ถ้วน';
+    return (amount < 0 ? 'ลบ' : '') + bahtText + satangText;
+  }
+
   const parsed = parseInput(amount);
   if (!parsed) return 'ข้อมูลไม่ถูกต้อง';
 
@@ -189,9 +226,12 @@ function thaiReadRaw(amount: number | string): string {
 
   const { isNegative, intPart, decPart } = parsed;
 
+  const isAllZeroDec = !decPart || isAllZeros(decPart);
+  const isZero = intPart === '0' && isAllZeroDec;
+
   let result = convertInteger(intPart);
 
-  if (decPart) {
+  if (decPart && !isAllZeroDec) {
     let decText = '';
     for (let i = 0; i < decPart.length; i++) {
       decText += THAI_NUMBERS[decPart.charCodeAt(i) - 48];
@@ -199,7 +239,6 @@ function thaiReadRaw(amount: number | string): string {
     result += 'จุด' + decText;
   }
 
-  const isZero = intPart === '0' && !decPart;
   return isNegative && !isZero ? 'ลบ' + result : result;
 }
 
